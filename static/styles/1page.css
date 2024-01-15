@@ -1,0 +1,39 @@
+html, body {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body {
+  background-image: url('images/log_page.jpeg');
+  background-size: cover;
+}
+
+.container {
+  text-align: center;
+}
+
+.form-label {
+  display: inline-block;
+  width: 100px;
+  text-align: right;
+  margin-right: 10px;
+  color: #ef081b;
+}
+
+.form-control {
+  width: 200px;
+}
+
+.btn {
+  display: block;
+  width: 208px;
+  margin-left: 115px;
+}
+
+.form_name {
+  width: 200px;
+  margin-left: 115px;
+  color: #ef081b;
+}
