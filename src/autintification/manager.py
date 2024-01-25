@@ -1,10 +1,10 @@
 from typing import Optional
 
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, UUIDIDMixin, IntegerIDMixin, schemas, models, exceptions
+from fastapi_users import BaseUserManager, IntegerIDMixin, schemas, models, exceptions
 
-from autintification.database import User, get_user_db
-from config import SECRET
+from src.autintification.database import User, get_user_db
+from src.config import SECRET
 
 
 SECRET = SECRET

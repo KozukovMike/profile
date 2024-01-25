@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Форма входа</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles/1page.css') }}"></head>
+    <title>Форма регистрации</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', path='styles/1page.css') }}">
+</head>
 <body>
     <div class="container">
-        <h1 class="form_name">Форма входа</h1>
-        <form action="/login" method="post">
+        <h1 class="form_name">Форма регистрации</h1>
+        <form action="/protected-route" method="post">
             <div class="form-group">
                 <label for="email" class="form-label">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="form-group">
-                <label for="login" class="form-label">Login:</label>
-                <input type="text" class="form-control" id="login" name="login" required>
+                <label for="username" class="form-label">Имя пользователя:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
             </div>
             <div class="form-group">
                 <label for="password" class="form-label">Пароль:</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">Войти</button>
-            <button type="submit" class="btn btn-primary">Зарегестрироваться</button>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
         </form>
     </div>
 </body>
