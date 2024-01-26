@@ -1,15 +1,15 @@
 import httpx
-from fastapi import FastAPI, Request, Depends, Form
+from fastapi import FastAPI, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 from fastapi_users import FastAPIUsers
 
-from src.autintification.database import User
+from src.autintification.models import User
 from src.autintification.base_config import auth_backend
 from src.autintification.manager import get_user_manager
 from src.autintification.schemas import UserRead, UserCreate
-
+from src.application.router import router as router_application
 
 app = FastAPI()
 templates = Jinja2Templates(directory="../static/templates")
@@ -33,6 +33,7 @@ app.include_router(
     tags=["auth"],
 )
 
+app.include_router(router_application)
 
 current_user = fastapi_users.current_user()
 

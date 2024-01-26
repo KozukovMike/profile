@@ -2,12 +2,18 @@ from typing import Optional
 
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin, schemas, models, exceptions
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi_users.db import SQLAlchemyUserDatabase
 
-from src.autintification.database import User, get_user_db
+from src.autintification.models import User
 from src.config import SECRET
-
+from src.database import get_async_session
 
 SECRET = SECRET
+
+
+async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+    yield SQLAlchemyUserDatabase(session, User)
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
