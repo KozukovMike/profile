@@ -7,7 +7,7 @@
 <body>
     <div class="container">
         <h1 class="form_name">Форма регистрации</h1>
-        <form action="/protected-route" method="post">
+        <form method="post">
             <div class="form-group">
                 <label for="email" class="form-label">Email:</label>
                 <input type="email" class="form-control" id="email" name="email" required>
@@ -20,7 +20,8 @@
                 <label for="password" class="form-label">Password:</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+            <button type="submit" formaction="/sign_in" class="btn btn-primary">Sign in</button>
+            <button type="submit" formaction="/login" class="btn btn-secondary">Login</button>
         </form>
     </div>
 </body>

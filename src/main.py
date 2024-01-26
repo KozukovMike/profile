@@ -38,8 +38,8 @@ app.include_router(router_application)
 current_user = fastapi_users.current_user()
 
 
-@app.post("/protected-route")
-async def protected_route(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+@app.post("/sign_in")
+async def sign_in(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     data = {
         "email": "string111",
         "password": "string111",
@@ -51,6 +51,22 @@ async def protected_route(username: str = Form(...), email: str = Form(...), pas
         response_data = response.json()
 
     return {"message": "Пользователь успешно зарегистрирован", "response": response_data}
+
+
+@app.post("/login")
+async def login(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+    data = {
+        "password": "18",
+        "username": "17",
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            'http://127.0.0.1:8000/auth/jwt/login',
+            json=data
+        )
+        response_data = response.json()
+
+    return {"message": "Пользователь успешно вошел", "response": response_data}
 
 
 @app.get("/hello/{name}")
