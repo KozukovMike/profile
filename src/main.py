@@ -1,9 +1,10 @@
 import httpx
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
 from fastapi_users import FastAPIUsers
+from fastapi.responses import RedirectResponse
 
 from src.autintification.models import User
 from src.autintification.base_config import auth_backend
@@ -38,40 +39,113 @@ app.include_router(router_application)
 current_user = fastapi_users.current_user()
 
 
+
+# @app.post("/sign_in")
+# async def sign_in(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+#     data = {
+#         "email": "string111",
+#         "password": "string111",
+#         "username": "string111",
+#         "role_id": 0
+#     }
+#     async with httpx.AsyncClient() as client:
+#         response = await client.post("http://127.0.0.1:8000/auth/register", json=data)
+#         response_data = response.json()
+#
+#     return {"message": "Пользователь успешно зарегистрирован", "response": response_data}
+#
+#
+# @app.post("/login")
+# async def login(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+#     data = {
+#         "password": "18",
+#         "username": "17",
+#     }
+#     async with httpx.AsyncClient() as client:
+#         response = await client.post(
+#             'http://127.0.0.1:8000/auth/jwt/login',
+#             json=data
+#         )
+#         response_data = response.json()
+#
+#     return {"message": "Пользователь успешно вошел", "response": response_data}
+
+
 @app.post("/sign_in")
-async def sign_in(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def sign_in(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     data = {
-        "email": "string111",
-        "password": "string111",
-        "username": "string111",
+        "email": "string11111",
+        "password": "string11111",
+        "username": "string11111",
         "role_id": 0
     }
     async with httpx.AsyncClient() as client:
-        response = await client.post("http://127.0.0.1:8000/auth/register", json=data)
-        response_data = response.json()
+        response = await client.post(
+            url=f'{request.base_url}auth/register',
+            json=data,
+        )
 
-    return {"message": "Пользователь успешно зарегистрирован", "response": response_data}
+    redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+    redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
+
+    return redirect
 
 
 @app.post("/login")
-async def login(username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def login(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     data = {
         "password": "18",
         "username": "17",
     }
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            'http://127.0.0.1:8000/auth/jwt/login',
-            json=data
+            url=f'{request.base_url}auth/jwt/login',
+            headers={
+                'accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            data=data,
         )
-        response_data = response.json()
 
-    return {"message": "Пользователь успешно вошел", "response": response_data}
+    # response_data = response.json()
+
+    # return {"message": "Пользователь успешно вошел", "response": response_data}
+
+    redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+    redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
+
+    return redirect
+
+
+@app.post("/logout")
+async def logout(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+    data = {
+        "password": "18",
+        "username": "17",
+    }
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            url=f'{request.base_url}auth/jwt/logout',
+            headers={
+                'accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            data=data,
+        )
+
+    # response_data = response.json()
+
+    # return {"message": "Пользователь успешно вошел", "response": response_data}
+
+    redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+    redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
+
+    return redirect
 
 
 @app.get("/hello/{name}")
 async def say_hello(name: str, request: Request):
-    return templates.TemplateResponse("123.html", {"request": request})
+    return {"akckl": name, "request": request.base_url}
 
 
 @app.get("/")
