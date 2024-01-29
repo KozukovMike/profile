@@ -16,4 +16,5 @@ router = APIRouter(
 async def root(email: str, session: AsyncSession = Depends(get_async_session)):
     query = select(application).where(application.c.email == email)
     result = await session.execute(query)
+    session.commit()
     return result.all()

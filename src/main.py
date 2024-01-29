@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import httpx
 from fastapi import FastAPI, Request, Form, status
 from fastapi.staticfiles import StaticFiles
@@ -7,8 +9,7 @@ from fastapi_users import FastAPIUsers
 from fastapi.responses import RedirectResponse
 
 from src.autintification.models import User
-from src.autintification.base_config import auth_backend
-from src.autintification.manager import get_user_manager
+from src.autintification.base_config import auth_backend, fastapi_users
 from src.autintification.schemas import UserRead, UserCreate
 from src.application.router import router as router_application
 
@@ -16,11 +17,6 @@ app = FastAPI()
 templates = Jinja2Templates(directory="../static/templates")
 app.mount("/static", StaticFiles(directory="../static"), name="static")
 
-
-fastapi_users = FastAPIUsers[User, int](
-    get_user_manager,
-    [auth_backend],
-)
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
@@ -35,8 +31,6 @@ app.include_router(
 )
 
 app.include_router(router_application)
-
-current_user = fastapi_users.current_user()
 
 
 
@@ -69,15 +63,19 @@ current_user = fastapi_users.current_user()
 #         response_data = response.json()
 #
 #     return {"message": "Пользователь успешно вошел", "response": response_data}
-
-
 @app.post("/sign_in")
-async def sign_in(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def sign_in(
+                request: Request,
+                username: Annotated[str, Form()],
+                password: Annotated[str, Form()],
+                email: Annotated[str, Form()]
+                ):
+
     data = {
-        "email": "string11111",
-        "password": "string11111",
-        "username": "string11111",
-        "role_id": 0
+        "email": email,
+        "password": password,
+        "username": username,
+        "role_id": 1
     }
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -85,18 +83,25 @@ async def sign_in(request: Request, username: str = Form(...), email: str = Form
             json=data,
         )
 
-    redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
-    redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
+    if response.status_code in [200, 201, 204]:
+        redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+        redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
 
-    return redirect
+        return redirect
 
 
 @app.post("/login")
-async def login(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...)):
+async def login(
+                request: Request,
+                username: Annotated[str, Form()],
+                password: Annotated[str, Form()],
+                email: Annotated[str, Form()]
+                ):
     data = {
-        "password": "18",
-        "username": "17",
+        "password": password,
+        "username": email,
     }
+
     async with httpx.AsyncClient() as client:
         response = await client.post(
             url=f'{request.base_url}auth/jwt/login',
@@ -111,36 +116,40 @@ async def login(request: Request, username: str = Form(...), email: str = Form(.
 
     # return {"message": "Пользователь успешно вошел", "response": response_data}
 
-    redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
-    redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
+    if response.status_code in [200, 201, 204]:
+        cookies = response.cookies['fastapiusers']
+        redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+        print(cookies)
+        # for cookie in cookies:
+        redirect.set_cookie(key='fastapiusers', value=cookies, httponly=True)
 
-    return redirect
+        return redirect
 
 
 @app.post("/logout")
-async def logout(request: Request, username: str = Form(...), email: str = Form(...), password: str = Form(...)):
-    data = {
-        "password": "18",
-        "username": "17",
-    }
+async def logout(
+                request: Request,
+                username: Annotated[str, Form()],
+                password: Annotated[str, Form()],
+                email: Annotated[str, Form()]
+                ):
     async with httpx.AsyncClient() as client:
-        response = await client.post(
+        await client.post(
             url=f'{request.base_url}auth/jwt/logout',
             headers={
                 'accept': 'application/json',
-                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            data=data,
+            cookies={'fastapiusers': request.cookies.get('fastapiusers')}
         )
 
     # response_data = response.json()
 
     # return {"message": "Пользователь успешно вошел", "response": response_data}
 
-    redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
-    redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
+    redirect_response = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+    redirect_response.delete_cookie('fastapiusers')
 
-    return redirect
+    return redirect_response
 
 
 @app.get("/hello/{name}")
