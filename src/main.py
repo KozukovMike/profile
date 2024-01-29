@@ -85,7 +85,7 @@ async def sign_in(
 
     if response.status_code in [200, 201, 204]:
         redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
-        redirect.set_cookie(key='auth', value=response.cookies.get('auth'), httponly=True)
+        redirect.set_cookie(key='fastapiusers', value=response.cookies.get('fastapiusers'), httponly=True)
 
         return redirect
 

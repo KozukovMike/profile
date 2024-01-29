@@ -8,6 +8,8 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from src.autintification.models import User
 from src.config import SECRET
 from src.database import get_async_session
+from src.global_functions import send_email
+
 
 SECRET = SECRET
 
@@ -22,6 +24,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
+        send_email(user.email, "you have registered successfully")
 
     async def create(
         self,
