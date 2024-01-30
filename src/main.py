@@ -13,6 +13,8 @@ from src.autintification.models import User
 from src.autintification.base_config import auth_backend, fastapi_users
 from src.autintification.schemas import UserRead, UserCreate
 from src.application.router import router as router_application
+from src.cv.router import router as router_cv
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory="../static/templates")
@@ -32,6 +34,7 @@ app.include_router(
 )
 
 app.include_router(router_application)
+app.include_router(router_cv)
 
 origins = [
     "http://localhost:8000",
@@ -95,7 +98,7 @@ async def sign_in(
         )
 
     if response.status_code in [200, 201, 204]:
-        redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+        redirect = RedirectResponse(url=f'{request.base_url}main', status_code=status.HTTP_302_FOUND)
         redirect.set_cookie(key='fastapiusers', value=response.cookies.get('fastapiusers'), httponly=True)
 
         return redirect
@@ -129,7 +132,7 @@ async def login(
 
     if response.status_code in [200, 201, 204]:
         cookies = response.cookies['fastapiusers']
-        redirect = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+        redirect = RedirectResponse(url=f'{request.base_url}main', status_code=status.HTTP_302_FOUND)
         print(cookies)
         # for cookie in cookies:
         redirect.set_cookie(key='fastapiusers', value=cookies, httponly=True)
@@ -138,12 +141,7 @@ async def login(
 
 
 @app.post("/logout")
-async def logout(
-                request: Request,
-                username: Annotated[str, Form()],
-                password: Annotated[str, Form()],
-                email: Annotated[str, Form()]
-                ):
+async def logout(request: Request):
     async with httpx.AsyncClient() as client:
         await client.post(
             url=f'{request.base_url}auth/jwt/logout',
@@ -157,7 +155,7 @@ async def logout(
 
     # return {"message": "Пользователь успешно вошел", "response": response_data}
 
-    redirect_response = RedirectResponse(url=f'{request.base_url}hello/world', status_code=status.HTTP_302_FOUND)
+    redirect_response = RedirectResponse(url=f'{request.base_url}main', status_code=status.HTTP_302_FOUND)
     redirect_response.delete_cookie('fastapiusers')
 
     return redirect_response
@@ -166,6 +164,11 @@ async def logout(
 @app.get("/hello/{name}")
 async def say_hello(name: str, request: Request):
     return {"akckl": name, "request": request.base_url}
+
+
+@app.get("/main")
+async def root(request: Request):
+    return templates.TemplateResponse("base.html", {"request": request, "base_url": request.base_url})
 
 
 @app.get("/")
