@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, insert
+from sqlalchemy import insert
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.models import application
 from src.database import get_async_session
-from src.global_functions import send_email
+from src.application.schemas import ApplicationCreate
 
 
 router = APIRouter(
@@ -14,9 +14,9 @@ router = APIRouter(
 )
 
 
-@router.get("/")
-async def put_items(email: str, linkedin: str, session: AsyncSession = Depends(get_async_session)):
-    stmt = insert(application).values(email=email, linkedin=linkedin)
+@router.post("/")
+async def put_items(new_application: ApplicationCreate, session: AsyncSession = Depends(get_async_session)):
+    stmt = insert(application).values(**new_application.model_dump())
     await session.execute(stmt)
     await session.commit()
-    send_email(email, f"Your linkedin account is {linkedin}")
+    # send_email(email, f"Your linkedin account is {linkedin}")

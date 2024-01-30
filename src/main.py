@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 from fastapi_users import FastAPIUsers
 from fastapi.responses import RedirectResponse
+from starlette.middleware.cors import CORSMiddleware
 
 from src.autintification.models import User
 from src.autintification.base_config import auth_backend, fastapi_users
@@ -32,7 +33,17 @@ app.include_router(
 
 app.include_router(router_application)
 
+origins = [
+    "http://localhost:8000",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "PUT",  "POST", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+    allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers", "Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Credentials", "Authorization", "Accept", "Accept-Encoding", "Accept-Language", "Connection", "Host", "Origin", "Referer", "User-Agent", "X-Requested"],
+)
 
 # @app.post("/sign_in")
 # async def sign_in(username: str = Form(...), email: str = Form(...), password: str = Form(...)):

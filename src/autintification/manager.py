@@ -8,7 +8,7 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from src.autintification.models import User
 from src.config import SECRET
 from src.database import get_async_session
-from src.global_functions import send_email
+from src.tasks.global_functions import send_email
 
 
 SECRET = SECRET
