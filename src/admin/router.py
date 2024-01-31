@@ -6,6 +6,7 @@ router = APIRouter(
     tags=["Admin"],
 )
 
+
 @router.get("/")
 async def root():
     return {"message": "Hello World"}
